@@ -1,12 +1,11 @@
 <?php include 'db_connect.php';
 
-if(isset($_GET['id'])){
-	$qry = $conn->query("SELECT * FROM receiving_list where id=".$_GET['id'])->fetch_array();
-	foreach($qry as $k => $val){
+if (isset($_GET['id'])) {
+	$qry = $conn->query("SELECT * FROM receiving_list where id=" . $_GET['id'])->fetch_array();
+	foreach ($qry as $k => $val) {
 		$$k = $val;
 	}
-	$inv = $conn->query("SELECT * FROM inventory where type=1 and form_id=".$_GET['id']);
-
+	$inv = $conn->query("SELECT * FROM inventory where type=1 and form_id=" . $_GET['id']);
 }
 
 ?>
@@ -24,49 +23,53 @@ if(isset($_GET['id'])){
 						<div class="row">
 							<div class="form-group col-md-5">
 								<label class="control-label">Supplier</label>
-								<select name="supplier_id" id="" class="custom-select browser-default select2">
+								<select name="supplier_id" id="supplier_id" class="custom-select browser-default select2">
 									<option value=""></option>
-								<?php 
+									<?php
 
-								$supplier = $conn->query("SELECT * FROM supplier_list order by supplier_name asc");
-								while($row=$supplier->fetch_assoc()):
-								?>
-									<option value="<?php echo $row['id'] ?>"><?php echo $row['supplier_name'] ?></option>
-								<?php endwhile; ?>
+									$supplier = $conn->query("SELECT * FROM supplier_list order by supplier_name asc");
+									while ($row = $supplier->fetch_assoc()):
+									?>
+										<option value="<?php echo $row['id'] ?>"><?php echo $row['supplier_name'] ?></option>
+									<?php endwhile; ?>
 								</select>
+							</div>
+							<div class="col-md-3">
+								<label class="control-label">&nbsp</label>
+								<button class="btn btn-block btn-sm btn-primary" type="button" id="add_product"><i class="fa fa-plus"></i> Add Product</button>
 							</div>
 						</div>
 						<hr>
 						<div class="row mb-3">
-								<div class="col-md-4">
-									<label class="control-label">Product</label>
-									<select name="" id="product" class="custom-select browser-default select2">
-										<option value=""></option>
-									<?php 
+							<div class="col-md-4">
+								<label class="control-label">Product</label>
+								<select name="" id="product" class="custom-select browser-default select2">
+									<option value=""></option>
+									<?php
 									$cat = $conn->query("SELECT * FROM category_list order by name asc");
-										while($row=$cat->fetch_assoc()):
-											$cat_arr[$row['id']] = $row['name'];
-										endwhile;
+									while ($row = $cat->fetch_assoc()):
+										$cat_arr[$row['id']] = $row['name'];
+									endwhile;
 									$product = $conn->query("SELECT * FROM product_list  order by name asc");
-									while($row=$product->fetch_assoc()):
+									while ($row = $product->fetch_assoc()):
 										$prod[$row['id']] = $row;
 									?>
 										<option value="<?php echo $row['id'] ?>" data-name="<?php echo $row['name'] ?>" data-description="<?php echo $row['description'] ?>"><?php echo $row['name'] . ' | ' . $row['sku'] ?></option>
 									<?php endwhile; ?>
-									</select>
-								</div>
-								<div class="col-md-2">
-									<label class="control-label">Qty</label>
-									<input type="number" class="form-control text-right" step="any" id="qty" >
-								</div>
-								<div class="col-md-3">
-									<label class="control-label">Price</label>
-									<input type="number" class="form-control text-right" step="any" id="price" >
-								</div>
-								<div class="col-md-3">
-									<label class="control-label">&nbsp</label>
-									<button class="btn btn-block btn-sm btn-primary" type="button" id="add_list"><i class="fa fa-plus"></i> Add to List</button>
-								</div>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label class="control-label">Qty</label>
+								<input type="number" class="form-control text-right" step="any" id="qty">
+							</div>
+							<div class="col-md-3">
+								<label class="control-label">Price</label>
+								<input type="number" class="form-control text-right" step="any" id="price">
+							</div>
+							<div class="col-md-3">
+								<label class="control-label">&nbsp</label>
+								<button class="btn btn-block btn-sm btn-primary" type="button" id="add_list"><i class="fa fa-plus"></i> Add to List</button>
+							</div>
 
 
 						</div>
@@ -91,37 +94,37 @@ if(isset($_GET['id'])){
 									</tr>
 								</thead>
 								<tbody>
-									<?php 
-									if(isset($id)):
-									while($row = $inv->fetch_assoc()): 
-										foreach(json_decode($row['other_details']) as $k=>$v){
-											$row[$k] = $v;
-										}
+									<?php
+									if (isset($id)):
+										while ($row = $inv->fetch_assoc()):
+											foreach (json_decode($row['other_details']) as $k => $v) {
+												$row[$k] = $v;
+											}
 									?>
-										<tr class="item-row">
-											<td>
-												<input type="date" name="expiry_date[]" class="text-right" value="<?php echo date("Y-m-d",strtotime($row['expiry_date'])) ?>">
-											</td>
-											<td>
-												<input type="hidden" name="inv_id[]" value="<?php echo $row['id'] ?>">
-												<input type="hidden" name="product_id[]" value="<?php echo $row['product_id'] ?>">
-												<p class="pname">Name: <b><?php echo $prod[$row['product_id']]['name'] ?></b></p>
-												<p class="pdesc"><small><i>Description: <b><?php echo $prod[$row['product_id']]['description'] ?></b></i></small></p>
-											</td>
-											<td>
-												<input type="number" min="1" step="any" name="qty[]" value="<?php echo $row['qty'] ?>" class="text-right" readonly>
-											</td>
-											<td>
-												<input type="number" min="1" step="any" name="price[]" value="<?php echo $row['price'] ?>" class="text-right" readonly>
-											</td>
-											<td>
-												<p class="amount text-right"></p>
-											</td>
-											<td class="text-center">
-												<buttob class="btn btn-sm btn-danger" onclick = "rem_list($(this))"><i class="fa fa-trash"></i></buttob>
-											</td>
-										</tr>
-									<?php endwhile; ?>
+											<tr class="item-row">
+												<td>
+													<input type="date" name="expiry_date[]" class="text-right" value="<?php echo date("Y-m-d", strtotime($row['expiry_date'])) ?>">
+												</td>
+												<td>
+													<input type="hidden" name="inv_id[]" value="<?php echo $row['id'] ?>">
+													<input type="hidden" name="product_id[]" value="<?php echo $row['product_id'] ?>">
+													<p class="pname">Name: <b><?php echo $prod[$row['product_id']]['name'] ?></b></p>
+													<p class="pdesc"><small><i>Description: <b><?php echo $prod[$row['product_id']]['description'] ?></b></i></small></p>
+												</td>
+												<td>
+													<input type="number" min="1" step="any" name="qty[]" value="<?php echo $row['qty'] ?>" class="text-right" readonly>
+												</td>
+												<td>
+													<input type="number" min="1" step="any" name="price[]" value="<?php echo $row['price'] ?>" class="text-right" readonly>
+												</td>
+												<td>
+													<p class="amount text-right"></p>
+												</td>
+												<td class="text-center">
+													<buttob class="btn btn-sm btn-danger" onclick="rem_list($(this))"><i class="fa fa-trash"></i></buttob>
+												</td>
+											</tr>
+										<?php endwhile; ?>
 									<?php endif; ?>
 								</tbody>
 								<tfoot>
@@ -141,86 +144,207 @@ if(isset($_GET['id'])){
 					</div>
 				</form>
 			</div>
-			
+
 		</div>
 	</div>
 </div>
 <div id="tr_clone">
 	<table>
-	<tr class="item-row">
-		<td>
-			<input type="date" name="expiry_date[]" class="text-right" value="" required>
-		</td>
-		<td>
-			<input type="hidden" name="inv_id[]" value="">
-			<input type="hidden" name="product_id[]" value="">
-			<p class="pname">Name: <b>product</b></p>
-			<p class="pdesc"><small><i>Description: <b>Description</b></i></small></p>
-		</td>
-		<td>
-			<input type="number" min="1" step="any" name="qty[]" value="" class="text-right" readonly>
-		</td>
-		<td>
-			<input type="number" min="1" step="any" name="price[]" value="" class="text-right" readonly>
-		</td>
-		<td>
-			<p class="amount text-right"></p>
-		</td>
-		<td class="text-center">
-			<buttob class="btn btn-sm btn-danger" onclick = "rem_list($(this))"><i class="fa fa-trash"></i></buttob>
-		</td>
-	</tr>
+		<tr class="item-row">
+			<td>
+				<input type="date" name="expiry_date[]" class="text-right" value="" required>
+			</td>
+			<td>
+				<input type="hidden" name="inv_id[]" value="">
+				<input type="hidden" name="product_id[]" value="">
+				<p class="pname">Name: <b>product</b></p>
+				<p class="pdesc"><small><i>Description: <b>Description</b></i></small></p>
+			</td>
+			<td>
+				<input type="number" min="1" step="any" name="qty[]" value="" class="text-right" readonly>
+			</td>
+			<td>
+				<input type="number" min="1" step="any" name="price[]" value="" class="text-right" readonly>
+			</td>
+			<td>
+				<p class="amount text-right"></p>
+			</td>
+			<td class="text-center">
+				<buttob class="btn btn-sm btn-danger" onclick="rem_list($(this))"><i class="fa fa-trash"></i></buttob>
+			</td>
+		</tr>
 	</table>
 </div>
+<div class="modal fade" id="product_modal" role='dialog'>
+	<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Product Form</h5>
+			</div>
+			<div class="modal-body">
+				<?php
+				//   include('db_connect.php');
+				$sku = mt_rand(1, 99999999);
+				$sku = sprintf("%'08d\n", $sku);
+				$i = 1;
+				while ($i == 1) {
+					$chk = $conn->query("SELECT * FROM product_list where sku ='$sku'")->num_rows;
+					if ($chk > 0) {
+						$sku = mt_rand(1, 99999999);
+						$sku = sprintf("%'08d\n", $sku);
+					} else {
+						$i = 0;
+					}
+				}
+				?>
+				<form action="" id="manage-product">
+
+						<input type="hidden" name="id">
+						<div class="form-group">
+							<label class="control-label">SKU</label>
+							<input type="text" class="form-control" name="sku" value="<?php echo $sku ?>">
+						</div>
+						<div class="form-group">
+							<label class="control-label">Category</label>
+							<select name="category_id[]" id="" class="custom-select browser-default select2" multiple="multiple">
+								<?php
+
+								$cat = $conn->query("SELECT * FROM category_list order by name asc");
+								while ($row = $cat->fetch_assoc()):
+									$cat_arr[$row['id']] = $row['name'];
+								?>
+									<option value="<?php echo $row['id'] ?>"><?php echo $row['name'] ?></option>
+								<?php endwhile; ?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Type</label>
+							<select name="type_id" id="" class="custom-select browser-default select2">
+								<option></option>
+								<?php
+
+								$cat = $conn->query("SELECT * FROM type_list order by name asc");
+								while ($row = $cat->fetch_assoc()):
+									$type_arr[$row['id']] = $row['name'];
+								?>
+									<option value="<?php echo $row['id'] ?>"><?php echo $row['name'] ?></option>
+								<?php endwhile; ?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Product Name</label>
+							<input type="text" class="form-control" name="name" required="">
+						</div>
+						<div class="form-group">
+							<label class="control-label">Measurement</label>
+							<input type="text" class="form-control" name="measurement" required="">
+						</div>
+						<div class="form-group">
+							<label class="control-label">Description</label>
+							<textarea class="form-control" cols="30" rows="3" name="description"></textarea>
+						</div>
+						<div class="form-group">
+							<label class="control-label">Product Price</label>
+							<input type="number" step="any" class="form-control text-right" name="price">
+						</div>
+						<div class="form-group">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" value="1" id="prescription" name="prescription">
+								<label class="form-check-label" for="prescription">
+									Medicine requires prescription.
+								</label>
+							</div>
+						</div>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="submit" class="btn btn-primary" id='submit'>Save</button>
+				<button type="button" class="btn btn-secondary" onclick="frm_reset()" data-dismiss="modal">Cancel</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 <style type="text/css">
-	#tr_clone{
+	#tr_clone {
 		display: none;
 	}
-	td{
+
+	td {
 		vertical-align: middle !important;
 		justify-content: center;
 	}
-	td>input{
-		margin:auto;
+
+	td>input {
+		margin: auto;
 	}
+
 	td p {
 		margin: unset;
 	}
-	td input{
+
+	td input {
 		height: calc(100%);
 		width: calc(100%);
 		border: unset;
 
 	}
-	td input:focus{
-		border: unset;    
+
+	td input:focus {
+		border: unset;
 		outline-width: inherit;
 	}
-	input[type=number]::-webkit-inner-spin-button, 
-	input[type=number]::-webkit-outer-spin-button { 
-	  -webkit-appearance: none; 
-	  margin: 0; 
+
+	input[type=number]::-webkit-inner-spin-button,
+	input[type=number]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
 </style>
 <script>
+	function fetch_product_dropdown() { 
+		$.ajax({
+			url:'ajax.php?action=fetch_product_dropdown',
+			data: [],
+		    cache: false,
+		    contentType: false,
+		    processData: false,
+		    method: 'POST',
+		    type: 'POST',
+			success:function(resp){
+				$('#product').html(resp);
+			}
+		})
+	}
+
+	function frm_reset(){
+		$('#manage-product input, #manage-product select, #manage-product textarea').val('')
+		$('#manage-product input, #manage-product select, #manage-product textarea').trigger('change')
+	}
+
 	$('.select2').select2({
-	 	placeholder:"Please select here",
-	 	width:"100%"
+		placeholder: "Please select here",
+		width: "100%"
 	})
 
-	$(document).ready(function(){
-		if('<?php echo isset($id) ?>' == 1){
-			$('[name="supplier_id"]').val('<?php echo isset($supplier_id) ? $supplier_id :'' ?>').select2({
-				placeholder:"Please select here",
-	 			width:"100%"
+	$(document).ready(function() {
+		if ('<?php echo isset($id) ?>' == 1) {
+			$('[name="supplier_id"]').val('<?php echo isset($supplier_id) ? $supplier_id : '' ?>').select2({
+				placeholder: "Please select here",
+				width: "100%"
 			})
 			calculate_total()
 		}
+
+		$(document).on('click', '#add_product', function() {
+			$('#product_modal').modal('show')
+		});
 	})
-	function rem_list(_this){
+
+	function rem_list(_this) {
 		_this.closest('tr').remove()
 	}
-	$('#add_list').click(function(){
+	$('#add_list').click(function() {
 		// alert("TEST");
 		// return false;
 
@@ -228,67 +352,111 @@ if(isset($_GET['id'])){
 		var product = $('#product').val(),
 			qty = $('#qty').val(),
 			price = $('#price').val();
-			if($('#list').find('tr[data-id="'+product+'"]').length > 0){
-				alert_toast("Product already on the list",'danger')
-				return false;
-			}
-			if(product == '' || qty == '' || price ==''){
-				alert_toast("Please complete the fields first",'danger')
-				return false;
-			}
-		tr.attr('data-id',product)
-		tr.find('.pname b').html($("#product option[value='"+product+"']").attr('data-name'))
-		tr.find('.pdesc b').html($("#product option[value='"+product+"']").attr('data-description'))
+		if ($('#list').find('tr[data-id="' + product + '"]').length > 0) {
+			alert_toast("Product already on the list", 'danger')
+			return false;
+		}
+		if (product == '' || qty == '' || price == '') {
+			alert_toast("Please complete the fields first", 'danger')
+			return false;
+		}
+		tr.attr('data-id', product)
+		tr.find('.pname b').html($("#product option[value='" + product + "']").attr('data-name'))
+		tr.find('.pdesc b').html($("#product option[value='" + product + "']").attr('data-description'))
 		tr.find('[name="product_id[]"]').val(product)
 		tr.find('[name="qty[]"]').val(qty)
 		tr.find('[name="price[]"]').val(price)
 		var amount = parseFloat(price) * parseFloat(qty);
-		tr.find('.amount').html(parseFloat(amount).toLocaleString('en-US',{style:'decimal',maximumFractionDigits:2,minimumFractionDigits:2}))
+		tr.find('.amount').html(parseFloat(amount).toLocaleString('en-US', {
+			style: 'decimal',
+			maximumFractionDigits: 2,
+			minimumFractionDigits: 2
+		}))
 		$('#list tbody').append(tr)
 		calculate_total()
-		$('[name="qty[]"],[name="price[]"]').keyup(function(){
+		$('[name="qty[]"],[name="price[]"]').keyup(function() {
 			calculate_total()
 		})
-		 $('#product').val('').select2({
-		 	placeholder:"Please select here",
-	 		width:"100%"
-		 })
-			$('#qty').val('')
-			$('#price').val('')
+		$('#product').val('').select2({
+			placeholder: "Please select here",
+			width: "100%"
+		})
+		$('#qty').val('')
+		$('#price').val('')
 	})
-	function calculate_total(){
+
+	function calculate_total() {
 		var total = 0;
-		$('#list tbody').find('.item-row').each(function(){
+		$('#list tbody').find('.item-row').each(function() {
 			var _this = $(this).closest('tr')
-		var amount = parseFloat(_this.find('[name="qty[]"]').val()) * parseFloat(_this.find('[name="price[]"]').val());
-		amount = amount > 0 ? amount :0;
-		_this.find('p.amount').html(parseFloat(amount).toLocaleString('en-US',{style:'decimal',maximumFractionDigits:2,minimumFractionDigits:2}))
-		total+=parseFloat(amount);
+			var amount = parseFloat(_this.find('[name="qty[]"]').val()) * parseFloat(_this.find('[name="price[]"]').val());
+			amount = amount > 0 ? amount : 0;
+			_this.find('p.amount').html(parseFloat(amount).toLocaleString('en-US', {
+				style: 'decimal',
+				maximumFractionDigits: 2,
+				minimumFractionDigits: 2
+			}))
+			total += parseFloat(amount);
 		})
 		$('#list [name="tamount"]').val(total)
-		$('#list .tamount').html(parseFloat(total).toLocaleString('en-US',{style:'decimal',maximumFractionDigits:2,minimumFractionDigits:2}))
+		$('#list .tamount').html(parseFloat(total).toLocaleString('en-US', {
+			style: 'decimal',
+			maximumFractionDigits: 2,
+			minimumFractionDigits: 2
+		}))
 	}
-	$('#manage-receiving').submit(function(e){
+
+	$('#manage-receiving').submit(function(e) {
 		e.preventDefault()
 		start_load()
-		if($("#list .item-row").length <= 0){
-			alert_toast("Please insert atleast 1 item first.",'danger');
+		if ($("#list .item-row").length <= 0) {
+			alert_toast("Please insert atleast 1 item first.", 'danger');
 			end_load();
 			return false;
 		}
 		$.ajax({
-			url:'ajax.php?action=save_receiving',
-		    method: 'POST',
-		    data: $(this).serialize(),
-			success:function(resp){
-				if(resp==1){
-					alert_toast("Data successfully added",'success')
-					setTimeout(function(){
+			url: 'ajax.php?action=save_receiving',
+			method: 'POST',
+			data: $(this).serialize(),
+			success: function(resp) {
+				if (resp == 1) {
+					alert_toast("Data successfully added", 'success')
+					setTimeout(function() {
 						location.href = "index.php?page=receiving"
-					},1500)
+					}, 1500)
 
 				}
-				
+
+			}
+		})
+	})
+
+	$(document).on('submit','#manage-product',function(e){
+		e.preventDefault()
+		start_load()
+		$.ajax({
+			url:'ajax.php?action=save_product',
+			data: new FormData($(this)[0]),
+		    cache: false,
+		    contentType: false,
+		    processData: false,
+		    method: 'POST',
+		    type: 'POST',
+			success:function(resp){
+				if(resp==1){
+					alert_toast("Data successfully added",'success');
+					$('#product_modal').modal('hide');
+					fetch_product_dropdown();
+					end_load();
+					frm_reset()
+				}
+				else if(resp==2){
+					alert_toast("Data successfully updated",'success');
+					$('#product_modal').modal('hide');
+					fetch_product_dropdown();
+					end_load();
+					frm_reset()
+				}
 			}
 		})
 	})

@@ -135,3 +135,8 @@ if($action == "delete_expired"){
 	if($save)
 		echo $save;
 }
+
+if($action == "fetch_product_dropdown"){
+	$save = $crud->getProductsOption();
+	echo $save;
+}
