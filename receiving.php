@@ -22,12 +22,13 @@
 							</thead>
 							<tbody>
 							<?php 
-								$supplier = $conn->query("SELECT * FROM supplier_list order by supplier_name asc");
+								$client_id = $_SESSION['login_client_id'];
+								$supplier = $conn->query("SELECT * FROM supplier_list WHERE client_id='$client_id' order by supplier_name asc");
 								while($row=$supplier->fetch_assoc()):
 									$sup_arr[$row['id']] = $row['supplier_name'];
 								endwhile;
 								$i = 1;
-								$receiving = $conn->query("SELECT * FROM receiving_list r order by date(date_added) desc");
+								$receiving = $conn->query("SELECT * FROM receiving_list r where client_id='$client_id' order by date(date_added) desc");
 								while($row=$receiving->fetch_assoc()):
 							?>
 								<tr>

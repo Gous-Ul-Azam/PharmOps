@@ -63,7 +63,8 @@
 							<tbody>
 								<?php 
 								$i = 1;
-								$cats = $conn->query("SELECT * FROM supplier_list order by id asc");
+								$client_id = $_SESSION['login_client_id'];
+								$cats = $conn->query("SELECT * FROM supplier_list where client_id='$client_id' order by id asc");
 								while($row=$cats->fetch_assoc()):
 								?>
 								<tr>

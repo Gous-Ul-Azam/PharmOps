@@ -18,7 +18,7 @@
   			</div>
   		</div>
       <div class="col-md-4 float-left text-white">
-        <large><b>Pharmacy Sales and Inventory System</b></large>
+        <large><b><?php echo $_SESSION['setting_name']; ?></b></large>
       </div>
       <div class="float-right">
   	  	<div class=" dropdown mr-4">

@@ -20,7 +20,8 @@
 							<tbody>
 							<?php 
 								$i = 1;
-								$product = $conn->query("SELECT * FROM product_list r order by name asc");
+								$client_id = $_SESSION['login_client_id'];
+								$product = $conn->query("SELECT * FROM product_list r WHERE client_id='$client_id' order by name asc");
 								while($row=$product->fetch_assoc()):
 								$inn = $conn->query("SELECT sum(qty) as inn FROM inventory where type = 1 and product_id = ".$row['id']);
 								$inn = $inn && $inn->num_rows > 0 ? $inn->fetch_array()['inn'] : 0;

@@ -12,7 +12,8 @@ $conn->query("SET time_zone = '+05:30'");
 function generate_ref_no($conn) {
     $today = date('Y-m-d');
     $ref_prefix = "RCV/" . date('Y/m/d');
-    $res = $conn->query("SELECT ref_no FROM receiving_list WHERE DATE(date_added) = '$today' ORDER BY id DESC LIMIT 1");
+    $client_id = $_SESSION['login_client_id'];
+    $res = $conn->query("SELECT ref_no FROM receiving_list WHERE client_id='$client_id' AND  DATE(date_added) = '$today' ORDER BY id DESC LIMIT 1");
 
     $last_num = 0;
     if ($res->num_rows > 0) {
@@ -38,7 +39,7 @@ $uploaded_products = [];
 
 if (isset($_POST['submit']) && isset($_FILES['excel']['tmp_name'])) {
     $file = $_FILES['excel']['tmp_name'];
-
+    $client_id = $_SESSION['login_client_id'];
     try {
         $spreadsheet = IOFactory::load($file);
         $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
@@ -80,9 +81,9 @@ if (isset($_POST['submit']) && isset($_FILES['excel']['tmp_name'])) {
 
         foreach ($grouped as $supplier => $rows) {
             // Supplier
-            $supplier_res = $conn->query("SELECT id FROM supplier_list WHERE supplier_name = '$supplier'");
+            $supplier_res = $conn->query("SELECT id FROM supplier_list WHERE client_id='$client_id' AND supplier_name = '$supplier'");
             if ($supplier_res->num_rows == 0) {
-                $conn->query("INSERT INTO supplier_list(supplier_name) VALUES('$supplier')");
+                $conn->query("INSERT INTO supplier_list(supplier_name,client_id) VALUES('$supplier','$client_id')");
                 $supplier_id = $conn->insert_id;
             } else {
                 $supplier_id = $supplier_res->fetch_assoc()['id'];
@@ -107,36 +108,36 @@ if (isset($_POST['submit']) && isset($_FILES['excel']['tmp_name'])) {
                 $total_amount += $qty * $purchase_price;
 
                 // Category
-                $cat_res = $conn->query("SELECT id FROM category_list WHERE name = '$category'");
+                $cat_res = $conn->query("SELECT id FROM category_list WHERE client_id = '$client_id' AND name = '$category'");
                 if ($cat_res->num_rows > 0) {
                     $category_id = $cat_res->fetch_assoc()['id'];
                 } else {
-                    $conn->query("INSERT INTO category_list(name) VALUES('$category')");
+                    $conn->query("INSERT INTO category_list(name,client_id) VALUES('$category','$client_id')");
                     $category_id = $conn->insert_id;
                 }
 
                 // Type
-                $type_res = $conn->query("SELECT id FROM type_list WHERE name = '$type'");
+                $type_res = $conn->query("SELECT id FROM type_list WHERE client_id='$client_id' AND name = '$type'");
                 if ($type_res->num_rows > 0) {
                     $type_id = $type_res->fetch_assoc()['id'];
                 } else {
-                    $conn->query("INSERT INTO type_list(name) VALUES('$type')");
+                    $conn->query("INSERT INTO type_list(name,client_id) VALUES('$type','$client_id')");
                     $type_id = $conn->insert_id;
                 }
 
                 // Product
-                $prod_res = $conn->query("SELECT id FROM product_list WHERE name = '$name' AND category_id = '$category_id' AND type_id = '$type_id' AND measurement = '$measurement'");
+                $prod_res = $conn->query("SELECT id FROM product_list WHERE client_id='$client_id' AND name = '$name' AND category_id = '$category_id' AND type_id = '$type_id' AND measurement = '$measurement'");
                 if ($prod_res->num_rows > 0) {
                     $product_id = $prod_res->fetch_assoc()['id'];
                 } else {
-                    $conn->query("INSERT INTO product_list(category_id, type_id, sku, price, name, measurement, description, prescription)
-                        VALUES('$category_id','$type_id','$sku','$sale_price','$name','$measurement','$description',0)");
+                    $conn->query("INSERT INTO product_list(category_id, type_id, sku, price, name, measurement, description, prescription,client_id)
+                        VALUES('$category_id','$type_id','$sku','$sale_price','$name','$measurement','$description',0,'$client_id')");
                     $product_id = $conn->insert_id;
                 }
 
                 $other_details = json_encode(['price' => $purchase_price, 'qty' => $qty]);
-                $conn->query("INSERT INTO inventory(product_id, qty, type, stock_from, form_id, expiry_date, other_details, remarks)
-                    VALUES('$product_id', '$qty', 1, 'receiving', 0, '$expiry', '$other_details', 'Excel import')");
+                $conn->query("INSERT INTO inventory(product_id, qty, type, stock_from, form_id, expiry_date, other_details, remarks,client_id)
+                    VALUES('$product_id', '$qty', 1, 'receiving', 0, '$expiry', '$other_details', 'Excel import','$client_id')");
                 $inventory_ids[] = $conn->insert_id;
 
                 $uploaded_products[] = [
@@ -168,6 +169,8 @@ if (isset($_POST['submit']) && isset($_FILES['excel']['tmp_name'])) {
         exit;
 
     } catch (Throwable $e) {
+        // print_r($e);
+        // die();
         $_SESSION['upload_message'] = "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
         header("Location: index.php?page=import_excel");
         exit;

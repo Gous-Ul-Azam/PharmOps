@@ -2,7 +2,7 @@
 if(isset($_GET['iid'])){
 	$conn->query("UPDATE inventory set expired_confirmed = 1 where id = ".$_GET['iid']);
 }
-
+$client_id = $_SESSION['login_client_id'];
 
 ?>
 <div class="container-fluid">
@@ -22,11 +22,11 @@ if(isset($_GET['iid'])){
 									<select name="" id="product" class="custom-select browser-default select2">
 										<option value=""></option>
 									<?php 
-									$cat = $conn->query("SELECT * FROM category_list order by name asc");
+									$cat = $conn->query("SELECT * FROM category_list where client_id='$client_id' order by name asc");
 										while($row=$cat->fetch_assoc()):
 											$cat_arr[$row['id']] = $row['name'];
 										endwhile;
-									$product = $conn->query("SELECT * FROM product_list  order by name asc");
+									$product = $conn->query("SELECT * FROM product_list where client_id='$client_id'  order by name asc");
 									while($row=$product->fetch_assoc()):
 										$prod[$row['id']] = $row;
 									?>

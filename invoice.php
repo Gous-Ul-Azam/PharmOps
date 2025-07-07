@@ -170,10 +170,8 @@ if (isset($_GET['id'])) {
                     <div class="header-title"><span style="font-size: 32px;">➕</span></div>
                 </div>
                 <div class="col-10">
-                    <h4 class="mb-1">M/S Amar's Medical & General Stores</h4>
-                    <p class="subtext mb-0">Veterinary Medicines Available | 10% Discount on All Medicines | Free Home Delivery Above ₹500</p>
-                    <p class="subtext mb-1">GST No: 29ETQPS0881G1ZX</p>
-                    <p class="subtext">Phone: 6361655353 | Address: Jan Swasthya Kendra, Eadga Road, Agarkhed, India - 586209</p>
+                    <h4 class="mb-1"><?php echo $_SESSION['setting_name']; ?></h4>
+                    <p class="subtext mb-0"><?php echo $_SESSION['setting_about_content']; ?></p>
                 </div>
             </div>
             <div class="divider"></div>

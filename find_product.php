@@ -39,22 +39,24 @@
 				</thead>
 				<tbody>
 					<?php 
-						$cat = $conn->query("SELECT * FROM category_list order by name asc");
+					session_start();
+					$client_id = $_SESSION['login_client_id'];
+						$cat = $conn->query("SELECT * FROM category_list WHERE client_id='$client_id' order by name asc");
 							while($row=$cat->fetch_assoc()):
 								$cat_arr[$row['id']] = $row['name'];
 							endwhile;
-						$cat = $conn->query("SELECT * FROM type_list order by name asc");
+						$cat = $conn->query("SELECT * FROM type_list WHERE client_id='$client_id' order by name asc");
 							while($row=$cat->fetch_assoc()):
 								$type_arr[$row['id']] = $row['name'];
 							endwhile;
-						$product = $conn->query("SELECT * FROM product_list r order by name asc");
+						$product = $conn->query("SELECT * FROM product_list r WHERE client_id='$client_id' order by name asc");
 						while($row=$product->fetch_assoc()):
-						$inn = $conn->query("SELECT sum(qty) as inn FROM inventory where type = 1 and product_id = ".$row['id']);
+						$inn = $conn->query("SELECT sum(qty) as inn FROM inventory where type = 1 and client_id='$client_id' and product_id = ".$row['id']);
 						$inn = $inn && $inn->num_rows > 0 ? $inn->fetch_array()['inn'] : 0;
-						$out = $conn->query("SELECT sum(qty) as `out` FROM inventory where type = 2 and product_id = ".$row['id']);
+						$out = $conn->query("SELECT sum(qty) as `out` FROM inventory where type = 2 and client_id='$client_id' and product_id = ".$row['id']);
 						$out = $out && $out->num_rows > 0 ? $out->fetch_array()['out'] : 0;
 
-						$ex = $conn->query("SELECT sum(qty) as ex FROM expired_product where product_id = ".$row['id']);
+						$ex = $conn->query("SELECT sum(qty) as ex FROM expired_product where client_id='$client_id' and product_id = ".$row['id']);
 						$ex = $ex && $ex->num_rows > 0 ? $ex->fetch_array()['ex'] : 0;
 
 						$available = $inn - $out- $ex;

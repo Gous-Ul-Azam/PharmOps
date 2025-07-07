@@ -56,7 +56,8 @@
 							<tbody>
 								<?php 
 								$i = 1;
-								$customer = $conn->query("SELECT * FROM customer_list order by id asc");
+								$client_id = $_SESSION['login_client_id'];
+								$customer = $conn->query("SELECT * FROM customer_list where client_id='$client_id' order by id asc");
 								while($row=$customer->fetch_assoc()):
 								?>
 								<tr>

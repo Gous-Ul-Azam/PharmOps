@@ -50,11 +50,12 @@ if (isset($_GET['id'])) {
 								<select name="" id="product" class="custom-select browser-default select2">
 									<option value=""></option>
 									<?php
-									$cat = $conn->query("SELECT * FROM category_list order by name asc");
+									$client_id = $_SESSION['login_client_id'];
+									$cat = $conn->query("SELECT * FROM category_list WHERE client_id='$client_id' order by name asc");
 									while ($row = $cat->fetch_assoc()):
 										$cat_arr[$row['id']] = $row['name'];
 									endwhile;
-									$product = $conn->query("SELECT * FROM product_list  order by name asc");
+									$product = $conn->query("SELECT * FROM product_list WHERE client_id='$client_id'  order by name asc");
 									while ($row = $product->fetch_assoc()):
 										$prod[$row['id']] = $row;
 									?>
@@ -130,7 +131,7 @@ if (isset($_GET['id'])) {
 								</tbody>
 								<tfoot>
 									<tr>
-										<th class="text-right" colspan="3">Total</th>
+										<th class="text-right" colspan="4">Total</th>
 										<th class="text-right tamount"></th>
 										<th></th>
 									</tr>

@@ -28,9 +28,17 @@ class Action
 		$qry = $this->db->query("SELECT * FROM users where username = '" . $username . "' and password = '" . $password . "' ");
 		if ($qry->num_rows > 0) {
 			foreach ($qry->fetch_array() as $key => $value) {
-				if ($key != 'passwors' && !is_numeric($key))
+				if ($key != 'password' && !is_numeric($key))
 					$_SESSION['login_' . $key] = $value;
 			}
+
+			$client_id = $_SESSION['login_client_id'];
+			$query = $this->db->query("SELECT * FROM system_settings where id=$client_id")->fetch_array();
+		foreach ($query as $key => $value) {
+			if(!is_numeric($key))
+				$_SESSION['setting_'.$key] = $value;
+		}
+
 			return 1;
 		} else {
 			return 3;
@@ -79,9 +87,11 @@ class Action
 	function save_user()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		$data = " name = '$name' ";
 		$data .= ", username = '$username' ";
 		$data .= ", password = '$password' ";
+		$data .= ", client_id = '$client_id' ";
 		if (isset($type))
 			$data .= ", type = '$type' ";
 		if (empty($id)) {
@@ -117,6 +127,8 @@ class Action
 	function save_settings()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
+		
 		$data = " name = '$name' ";
 		$data .= ", email = '$email' ";
 		$data .= ", contact = '$contact' ";
@@ -128,14 +140,14 @@ class Action
 		}
 
 		// echo "INSERT INTO system_settings set ".$data;
-		$chk = $this->db->query("SELECT * FROM system_settings");
+		$chk = $this->db->query("SELECT * FROM system_settings WHERE id='$client_id'");
 		if ($chk->num_rows > 0) {
 			$save = $this->db->query("UPDATE system_settings set " . $data . " where id =" . $chk->fetch_array()['id']);
 		} else {
 			$save = $this->db->query("INSERT INTO system_settings set " . $data);
 		}
 		if ($save) {
-			$query = $this->db->query("SELECT * FROM system_settings limit 1")->fetch_array();
+			$query = $this->db->query("SELECT * FROM system_settings WHERE id='$client_id'")->fetch_array();
 			foreach ($query as $key => $value) {
 				if (!is_numeric($key))
 					$_SESSION['setting_' . $key] = $value;
@@ -149,7 +161,9 @@ class Action
 	function save_category()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		$data = " name = '$name' ";
+		$data .= ", client_id = '$client_id' ";
 		if (empty($id)) {
 			$save = $this->db->query("INSERT INTO category_list set " . $data);
 		} else {
@@ -168,7 +182,9 @@ class Action
 	function save_type()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		$data = " name = '$name' ";
+		$data .= ", client_id = '$client_id' ";
 		if (empty($id)) {
 			$save = $this->db->query("INSERT INTO type_list set " . $data);
 		} else {
@@ -187,9 +203,11 @@ class Action
 	function save_supplier()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		$data = " supplier_name = '$name' ";
 		$data .= ", contact = '$contact' ";
 		$data .= ", address = '$address' ";
+		$data .= ", client_id = '$client_id' ";
 		if (empty($id)) {
 			$save = $this->db->query("INSERT INTO supplier_list set " . $data);
 		} else {
@@ -208,6 +226,8 @@ class Action
 	function save_product()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
+		
 		if (empty($sku)) {
 			$sku = mt_rand(1, 99999999);
 			$sku = sprintf("%'08d\n", $sku);
@@ -229,6 +249,7 @@ class Action
 		$data .= ", measurement = '$measurement' ";
 		$data .= ", description = '$description' ";
 		$data .= ", price = '$price' ";
+		$data .= ", client_id = '$client_id' ";
 		if (isset($prescription))
 			$data .= ", prescription = '$prescription' ";
 
@@ -259,13 +280,14 @@ class Action
 	function save_receiving()
 	{
 		extract($_POST);
-		// var_dump($expiry_date);
-		// die();
+		$client_id = $_SESSION['login_client_id'];
+		
 		$inv_id = array_filter($inv_id);
 		// Re-index the array if needed
 		$inv_id = array_values($inv_id);
 		$data = " supplier_id = '$supplier_id' ";
 		$data .= ", total_amount = '$tamount' ";
+		$data .= ", client_id = '$client_id' ";
 
 		if (empty($id)) {
 			$ref_no = $this->generate_ref_no();
@@ -294,6 +316,7 @@ class Action
 				$details = json_encode(array('price' => $price[$k], 'qty' => $qty[$k]));
 				$data .= ", other_details = '$details' ";
 				$data .= ", remarks = 'Stock from Receiving-" . $ref_no . "' ";
+				$data .= ", client_id = '$client_id' ";
 
 				$save2[] = $this->db->query("INSERT INTO inventory set " . $data);
 			}
@@ -338,9 +361,11 @@ class Action
 	function save_customer()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		$data = " name = '$name' ";
 		$data .= ", contact = '$contact' ";
 		$data .= ", address = '$address' ";
+		$data .= ", client_id = '$client_id' ";
 		if (empty($id)) {
 			$save = $this->db->query("INSERT INTO customer_list set " . $data);
 		} else {
@@ -373,6 +398,8 @@ class Action
 	function save_sales()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
+		
 		$inv_id = array_filter($inv_id);
 		// Re-index the array if needed
 		$inv_id = array_values($inv_id);
@@ -381,13 +408,14 @@ class Action
 		$data .= ", total_amount = '$tamount' ";
 		$data .= ", amount_tendered = '$amount_tendered' ";
 		$data .= ", amount_change = '$change' ";
+		$data .= ", client_id = '$client_id' ";
 
 		if (empty($id)) {
 			$today = date('Y/m/d'); // e.g., 20250704
 
 			// 2. Count how many sales already exist today
 			$like = 'INV/' . $today;
-			$count = $this->db->query("SELECT COUNT(*) as total FROM sales_list WHERE ref_no LIKE '$like%'")->fetch_assoc()['total'];
+			$count = $this->db->query("SELECT COUNT(*) as total FROM sales_list WHERE client_id='$client_id' AND  ref_no LIKE '$like%'")->fetch_assoc()['total'];
 
 			// 3. Generate new sequence number (count + 1) padded to 3 digits
 			$sequence = str_pad($count + 1, 3, '0', STR_PAD_LEFT); // e.g., '001', '002'
@@ -406,6 +434,7 @@ class Action
 				$details = json_encode(array('price' => $price[$k], 'qty' => $qty[$k], 'discount' => $discount[$k]));
 				$data .= ", other_details = '$details' ";
 				$data .= ", remarks = 'Stock out from Sales-" . $ref_no . "' ";
+				$data .= ", client_id = '$client_id' ";
 
 				$save2[] = $this->db->query("INSERT INTO inventory set " . $data);
 			}
@@ -425,6 +454,7 @@ class Action
 				$details = json_encode(array('price' => $price[$k], 'qty' => $qty[$k], 'discount' => $discount[$k]));
 				$data .= ", other_details = '$details' ";
 				$data .= ", remarks = 'Stock out from Sales-" . $ref_no . "' ";
+				$data .= ", client_id = '$client_id' ";
 
 				if (!empty($inv_id[$k])) {
 					$save2[] = $this->db->query("UPDATE inventory set " . $data . " where id=" . $inv_id[$k]);
@@ -449,10 +479,12 @@ class Action
 	function save_expired()
 	{
 		extract($_POST);
+		$client_id = $_SESSION['login_client_id'];
 		foreach ($product_id as $key => $value) {
 			$data = " product_id = $product_id[$key] ";
 			$data .= ", qty = $qty[$key] ";
 			$data .= ", date_expired = '$expiry_date[$key]' ";
+			$data .= ", client_id = '$client_id' ";
 
 			$save[] = $this->db->query("INSERT INTO expired_product set $data ");
 		}
@@ -471,8 +503,8 @@ class Action
 	{
 		$today = date('Y-m-d');
 		$ref_prefix = "RCV/" . date('Y/m/d');
-
-		$res = $this->db->query("SELECT ref_no FROM receiving_list WHERE DATE(date_added) = '$today' ORDER BY id DESC LIMIT 1");
+		$client_id = $_SESSION['login_client_id'];
+		$res = $this->db->query("SELECT ref_no FROM receiving_list WHERE client_id='$client_id' AND DATE(date_added) = '$today' ORDER BY id DESC LIMIT 1");
 		if ($res->num_rows > 0) {
 			$last_ref = $res->fetch_assoc()['ref_no'];
 			preg_match('/(\d{4})$/', $last_ref, $matches);
@@ -488,7 +520,9 @@ class Action
 	function getProductsOption()
 	{
 		extract($_POST);
-		$product = $this->db->query("SELECT * FROM product_list  order by name asc");
+		$client_id = $_SESSION['login_client_id'];
+		$data .= ", client_id = '$client_id' ";
+		$product = $this->db->query("SELECT * FROM product_list WHERE client_id=$client_id order by name asc");
 		$option='<option value=""></option>';
 		while ($row = $product->fetch_assoc()) {
 			$prod[$row['id']] = $row;

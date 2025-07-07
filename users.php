@@ -25,7 +25,8 @@
 			<tbody>
 				<?php
  					include 'db_connect.php';
- 					$users = $conn->query("SELECT * FROM users order by name asc");
+					$client_id = $_SESSION['login_client_id'];
+ 					$users = $conn->query("SELECT * FROM users where client_id='$client_id' order by name asc");
  					$i = 1;
  					while($row= $users->fetch_assoc()):
 				 ?>

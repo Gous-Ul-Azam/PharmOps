@@ -51,7 +51,8 @@
 							<tbody>
 								<?php 
 								$i = 1;
-								$cats = $conn->query("SELECT * FROM type_list order by id asc");
+								$client_id = $_SESSION['login_client_id'];
+								$cats = $conn->query("SELECT * FROM type_list where client_id='$client_id' order by id asc");
 								while($row=$cats->fetch_assoc()):
 								?>
 								<tr>
@@ -99,14 +100,14 @@
 					alert_toast("Data successfully added",'success')
 					setTimeout(function(){
 						location.reload()
-					},1500)
+					},1000)
 
 				}
 				else if(resp==2){
 					alert_toast("Data successfully updated",'success')
 					setTimeout(function(){
 						location.reload()
-					},1500)
+					},1000)
 
 				}
 			}

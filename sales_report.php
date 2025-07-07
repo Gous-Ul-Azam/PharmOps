@@ -53,10 +53,8 @@
                             <div class="header-title"><span style="font-size: 32px;">➕</span></div>
                         </div>
                         <div class="col-10">
-                            <h4 class="mb-1">M/S Amar's Medical & General Stores</h4>
-                            <p class="subtext mb-0">Veterinary Medicines Available | 10% Discount on All Medicines | Free Home Delivery Above ₹500</p>
-                            <p class="subtext mb-1">GST No: 29ETQPS0881G1ZX</p>
-                            <p class="subtext">Phone: 6361655353 | Address: Beside Bus Stand Agarkhed Road, Indi - 586209</p>
+                        <h4 class="mb-1"><?php echo $_SESSION['setting_name']; ?></h4>
+                        <p class="subtext mb-0"><?php echo $_SESSION['setting_about_content']; ?></p>
                         </div>
                     </div>
 
@@ -77,10 +75,11 @@
                         </thead>
                         <tbody>
                             <?php
+                            $client_id = $_SESSION['login_client_id'];
                             $date = $_GET['date'];
                             $cus_arr[0] = "GUEST";
                             $i = 1;
-                            $sales = $conn->query("SELECT * FROM sales_list where date_updated LIKE '%$date%'   order by date(date_updated) desc");
+                            $sales = $conn->query("SELECT * FROM sales_list where client_id='$client_id' AND date_updated LIKE '%$date%'   order by date(date_updated) desc");
                             $grand_total = 0;
                             while ($row = $sales->fetch_assoc()):
                                 $sales_tranaction = $conn->query(

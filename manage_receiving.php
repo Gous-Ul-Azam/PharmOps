@@ -1,5 +1,5 @@
 <?php include 'db_connect.php';
-
+ $client_id = $_SESSION['login_client_id'];
 if (isset($_GET['id'])) {
 	$qry = $conn->query("SELECT * FROM receiving_list where id=" . $_GET['id'])->fetch_array();
 	foreach ($qry as $k => $val) {
@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
 									<option value=""></option>
 									<?php
 
-									$supplier = $conn->query("SELECT * FROM supplier_list order by supplier_name asc");
+									$supplier = $conn->query("SELECT * FROM supplier_list where client_id='$client_id' order by supplier_name asc");
 									while ($row = $supplier->fetch_assoc()):
 									?>
 										<option value="<?php echo $row['id'] ?>"><?php echo $row['supplier_name'] ?></option>
@@ -46,11 +46,11 @@ if (isset($_GET['id'])) {
 								<select name="" id="product" class="custom-select browser-default select2">
 									<option value=""></option>
 									<?php
-									$cat = $conn->query("SELECT * FROM category_list order by name asc");
+									$cat = $conn->query("SELECT * FROM category_list where client_id='$client_id' order by name asc");
 									while ($row = $cat->fetch_assoc()):
 										$cat_arr[$row['id']] = $row['name'];
 									endwhile;
-									$product = $conn->query("SELECT * FROM product_list  order by name asc");
+									$product = $conn->query("SELECT * FROM product_list where client_id='$client_id'  order by name asc");
 									while ($row = $product->fetch_assoc()):
 										$prod[$row['id']] = $row;
 									?>
@@ -188,7 +188,7 @@ if (isset($_GET['id'])) {
 				$sku = sprintf("%'08d\n", $sku);
 				$i = 1;
 				while ($i == 1) {
-					$chk = $conn->query("SELECT * FROM product_list where sku ='$sku'")->num_rows;
+					$chk = $conn->query("SELECT * FROM product_list where client_id='$client_id' and sku ='$sku'")->num_rows;
 					if ($chk > 0) {
 						$sku = mt_rand(1, 99999999);
 						$sku = sprintf("%'08d\n", $sku);
@@ -209,7 +209,7 @@ if (isset($_GET['id'])) {
 							<select name="category_id[]" id="" class="custom-select browser-default select2" multiple="multiple">
 								<?php
 
-								$cat = $conn->query("SELECT * FROM category_list order by name asc");
+								$cat = $conn->query("SELECT * FROM category_list where client_id='$client_id' order by name asc");
 								while ($row = $cat->fetch_assoc()):
 									$cat_arr[$row['id']] = $row['name'];
 								?>
@@ -223,7 +223,7 @@ if (isset($_GET['id'])) {
 								<option></option>
 								<?php
 
-								$cat = $conn->query("SELECT * FROM type_list order by name asc");
+								$cat = $conn->query("SELECT * FROM type_list where client_id='$client_id' order by name asc");
 								while ($row = $cat->fetch_assoc()):
 									$type_arr[$row['id']] = $row['name'];
 								?>
@@ -343,6 +343,7 @@ if (isset($_GET['id'])) {
 
 	function rem_list(_this) {
 		_this.closest('tr').remove()
+		calculate_total();
 	}
 	$('#add_list').click(function() {
 		// alert("TEST");

@@ -1,3 +1,7 @@
+<?php 
+include 'db_connect.php';
+// print_r($_SESSION);
+?>
 <style>
    
 </style>
@@ -21,8 +25,8 @@
 									<p><b><large>Total Sales Today</large></b></p>
 									<hr>
 									<p class="text-right"><b><large><?php 
-									include 'db_connect.php';
-									$sales = $conn->query("SELECT SUM(total_amount) as amount FROM sales_list where date(date_updated)= '".date('Y-m-d')."'");
+									$client_id = $_SESSION['login_client_id'];
+									$sales = $conn->query("SELECT SUM(total_amount) as amount FROM sales_list where client_id='$client_id' and date(date_updated)= '".date('Y-m-d')."'");
 									echo $sales->num_rows > 0 ? number_format($sales->fetch_array()['amount'],2) : "0.00";
 
 									 ?></large></b></p>
@@ -35,8 +39,8 @@
 									<p><b><large>Total Count of Transaction Today</large></b></p>
 									<hr>
 									<p class="text-right"><b><large><?php 
-									include 'db_connect.php';
-									$sales = $conn->query("SELECT * FROM sales_list where date(date_updated)= '".date('Y-m-d')."'");
+									
+									$sales = $conn->query("SELECT * FROM sales_list where client_id='$client_id' and date(date_updated)= '".date('Y-m-d')."'");
 									echo $sales->num_rows > 0 ? number_format($sales->num_rows) : "0";
 
 									 ?></large></b></p>

@@ -1,9 +1,10 @@
 <?php include('db_connect.php');
+ $client_id = $_SESSION['login_client_id'];
 	$sku = mt_rand(1,99999999);
 	$sku = sprintf("%'08d\n", $sku);
 	$i = 1;
 	while($i == 1){
-		$chk = $conn->query("SELECT * FROM product_list where sku ='$sku'")->num_rows;
+		$chk = $conn->query("SELECT * FROM product_list where client_id='$client_id' and sku ='$sku'")->num_rows;
 		if($chk > 0){
 			$sku = mt_rand(1,99999999);
 			$sku = sprintf("%'08d\n", $sku);
@@ -49,7 +50,7 @@
 							<select name="category_id[]" id="" class="custom-select browser-default select2" multiple="multiple">
 							<?php 
 
-							$cat = $conn->query("SELECT * FROM category_list order by name asc");
+							$cat = $conn->query("SELECT * FROM category_list where client_id='$client_id' order by name asc");
 							while($row=$cat->fetch_assoc()):
 								$cat_arr[$row['id']] = $row['name'];
 							?>
@@ -63,7 +64,7 @@
 								<option></option>
 							<?php 
 
-							$cat = $conn->query("SELECT * FROM type_list order by name asc");
+							$cat = $conn->query("SELECT * FROM type_list where client_id='$client_id' order by name asc");
 							while($row=$cat->fetch_assoc()):
 								$type_arr[$row['id']] = $row['name'];
 							?>
@@ -129,7 +130,7 @@
 							<tbody>
 								<?php 
 								$i = 1;
-								$prod = $conn->query("SELECT * FROM product_list order by id asc");
+								$prod = $conn->query("SELECT * FROM product_list where client_id='$client_id' order by id asc");
 								while($row=$prod->fetch_assoc()):
 									$cat  = '';
 									$carr = explode(",", $row['category_id']);

@@ -24,14 +24,16 @@
 							</thead>
 							<tbody>
 							<?php 
-								$customer = $conn->query("SELECT * FROM customer_list order by name asc");
+							
+								$client_id = $_SESSION['login_client_id'];
+								$customer = $conn->query("SELECT * FROM customer_list WHERE client_id='$client_id' order by name asc");
 								while($row=$customer->fetch_assoc()):
 									$cus_arr[$row['id']] = $row['name'];
 								endwhile;
 									$cus_arr[0] = "GUEST";
 
 								$i = 1;
-								$sales = $conn->query("SELECT * FROM sales_list  order by date(date_updated),id desc");
+								$sales = $conn->query("SELECT * FROM sales_list WHERE client_id='$client_id'  order by date(date_updated),id desc");
 								while($row=$sales->fetch_assoc()):
 							?>
 								<tr>

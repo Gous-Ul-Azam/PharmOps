@@ -23,7 +23,8 @@
 							<tbody>
 							<?php 
 							$i = 1;
-								$expired = $conn->query("SELECT e.*,p.name,p.sku,p.measurement FROM expired_product e inner join product_list p on p.id = e.product_id order by date(e.date_created) desc");
+							$client_id = $_SESSION['login_client_id'];
+								$expired = $conn->query("SELECT e.*,p.name,p.sku,p.measurement FROM expired_product e inner join product_list p on p.id = e.product_id where e.client_id='$client_id' order by date(e.date_created) desc");
 								while($row=$expired->fetch_assoc()):
 							?>
 								<tr>
