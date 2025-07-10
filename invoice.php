@@ -226,7 +226,7 @@ if (isset($_GET['id'])) {
                     <tfoot>
                         <tr>
                             <th colspan="6" class="text-right">Grand Total</th>
-                            <td class="text-right">₹ <?php echo number_format($grand_total) ?></td>
+                            <td class="text-right"><?php echo number_format($grand_total) ?></td>
                         </tr>
                     </tfoot>
                 </table>

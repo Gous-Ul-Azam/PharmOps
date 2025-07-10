@@ -326,7 +326,11 @@ class Action
 		} else {
 			$save = $this->db->query("UPDATE receiving_list set " . $data . " where id =" . $id);
 			$ids = implode(",", $inv_id);
-			$this->db->query("DELETE FROM inventory where type = 1 and form_id ='$id' and id NOT IN (" . $ids . ") ");
+			$query = "DELETE FROM inventory where type = 1 and form_id ='$id'"; 
+			if (count($inv_id) > 0) {
+				$query.= "and id NOT IN (" . $ids . ") ";
+			}
+			$this->db->query($query);
 			foreach ($product_id as $k => $v) {
 				$data = " form_id = '$id' ";
 				$data .= ", product_id = '$product_id[$k]' ";
@@ -337,6 +341,7 @@ class Action
 				$details = json_encode(array('price' => $price[$k], 'qty' => $qty[$k]));
 				$data .= ", other_details = '$details' ";
 				$data .= ", remarks = 'Stock from Receiving-" . $ref_no . "' ";
+				$data .= ", client_id = '$client_id' ";
 				if (!empty($inv_id[$k])) {
 					$save2[] = $this->db->query("UPDATE inventory set " . $data . " where id=" . $inv_id[$k]);
 				} else {
@@ -444,7 +449,11 @@ class Action
 		} else {
 			$save = $this->db->query("UPDATE sales_list set " . $data . " where id=" . $id);
 			$ids = implode(",", $inv_id);
-			$this->db->query("DELETE FROM inventory where type = 2 and form_id ='$id' and id NOT IN (" . $ids . ") ");
+			$query="DELETE FROM inventory where type = 2 and form_id ='$id'";
+			if (count($inv_id) > 0) {
+				$query.= "and id NOT IN (" . $ids . ") ";
+			}
+			$this->db->query($query);
 			foreach ($product_id as $k => $v) {
 				$data = " form_id = '$id' ";
 				$data .= ", product_id = '$product_id[$k]' ";
@@ -480,6 +489,8 @@ class Action
 	{
 		extract($_POST);
 		$client_id = $_SESSION['login_client_id'];
+		$this->db->query("UPDATE inventory set expired_confirmed = 1 where id = $inventory_id");
+		
 		foreach ($product_id as $key => $value) {
 			$data = " product_id = $product_id[$key] ";
 			$data .= ", qty = $qty[$key] ";

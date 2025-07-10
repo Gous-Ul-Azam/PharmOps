@@ -1,7 +1,5 @@
 <?php include 'db_connect.php';
-if(isset($_GET['iid'])){
-	$conn->query("UPDATE inventory set expired_confirmed = 1 where id = ".$_GET['iid']);
-}
+
 $client_id = $_SESSION['login_client_id'];
 
 ?>
@@ -13,6 +11,7 @@ $client_id = $_SESSION['login_client_id'];
 			</div>
 			<div class="card-body">
 				<form action="" id="manage-expired">
+					<input type="hidden" name="inventory_id" value="<?php echo isset($_GET['iid']) ? $_GET['iid'] : '' ?>">
 					<input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? $_GET['id'] : '' ?>">
 					<input type="hidden" name="ref_no" value="<?php echo isset($ref_no) ? $ref_no : '' ?>">
 					<div class="col-md-12">
@@ -70,8 +69,9 @@ $client_id = $_SESSION['login_client_id'];
 										
 									?>
 										<tr class="item-row">
-											<td>
-												<input type="date" name="expiry_date[]" class="text-right" value="<?php echo date("Y-m-d",strtotime($row['expiry_date'])) ?>">
+											<td class="text-center">
+												<input type="hidden" name="expiry_date[]" class="text-right" value="<?php echo date("Y-m-d",strtotime($row['expiry_date'])) ?>">
+												<?php echo date("d-m-Y",strtotime($row['expiry_date'])) ?>
 											</td>
 											<td>
 												<input type="hidden" name="inv_id[]" value="<?php echo $row['id'] ?>">
